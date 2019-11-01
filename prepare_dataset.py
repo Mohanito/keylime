@@ -1,9 +1,10 @@
 '''
-    process all videos in a directory one by one,
-        examine 1 out of 20 frames from the video
+prepare_dataset.py
+    For every video in the input directory:
+        examine 1 out of every 20 frames
         detect frames with YOLOv3 pretrained model with a high confidence
         save frames to output directory
-    USAGE: python prepare_dataset.py -i INPUT_DIR -o OUTPUT_DIR
+USAGE: python prepare_dataset.py -i INPUT_DIR -o OUTPUT_DIR
 '''
 
 import numpy as np
@@ -16,13 +17,12 @@ import os
 
 # --------------------------------- GLOBAL VARS ---------------------------------------- #
 CONFIDENCE = 0.8                    # Controls the quality of filtered frames
-DOWN_SAMPLING = 20	                # 1 out of DOWN_SAMPLING frames will be processed
+DOWN_SAMPLING = 20                  # 1 out of DOWN_SAMPLING frames will be processed
 CLASS_CAT = 15                      # See yolo-coco/coco.names
 
 
 
 def process_video(file_dir):
-
     # initialize the video stream and frame dimensions
     vs = cv2.VideoCapture(file_dir) # FIXME
     (W, H) = (None, None)
