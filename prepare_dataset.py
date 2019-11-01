@@ -3,6 +3,7 @@
         examine 1 out of 20 frames from the video
         detect frames with YOLOv3 pretrained model with a high confidence
         save frames to output directory
+    USAGE: python prepare_dataset.py -i INPUT_DIR -o OUTPUT_DIR
 '''
 
 import numpy as np
@@ -12,51 +13,30 @@ import time
 import cv2
 import os
 
-'''
-# construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--input", required=True,
-	help="path to input video")
-args = vars(ap.parse_args())
-'''
+
 # --------------------------------- GLOBAL VARS ---------------------------------------- #
 CONFIDENCE = 0.8                    # Controls the quality of filtered frames
 DOWN_SAMPLING = 20	                # 1 out of DOWN_SAMPLING frames will be processed
-OUTPUT_PATH = "extracted_frames/"
 CLASS_CAT = 15                      # See yolo-coco/coco.names
-
-# Setup YOLO
-labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
-LABELS = open(labelsPath).read().strip().split("\n")
-weightsPath = os.path.sep.join(["yolo-coco", "yolov3.weights"])
-configPath = os.path.sep.join(["yolo-coco", "yolov3.cfg"])
-
-# load our YOLO object detector trained on COCO dataset (80 classes)
-# and determine only the *output* layer names that we need from YOLO
-print("[INITIALIZATION] Loading YOLO from disk...")
-net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
-ln = net.getLayerNames()
-ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
 
 
 def process_video(file_dir):
 
     # initialize the video stream and frame dimensions
-    vs = cv2.VideoCapture(#FIXME file_dir #FIXME)
+    vs = cv2.VideoCapture(file_dir) # FIXME
     (W, H) = (None, None)
-
+    
     # try to determine the total number of frames in the video file
     try:
-        prop = cv2.cv.CV_CAP_PROP_FRAME_COUNT if imutils.is_cv2() \
-            else cv2.CAP_PROP_FRAME_COUNT
+        prop = cv2.cv.CV_CAP_PROP_FRAME_COUNT if imutils.is_cv2() else cv2.CAP_PROP_FRAME_COUNT
         total = int(vs.get(prop))
     except:
         print("[INFO] could not determine # of frames in video. No approx. completion time can be provided")
         total = -1
 
-    np.random.seed(time.time())         # Generate a seed for random output naming
-    frame_counter = 0	                # A counter for skipping frames
+    np.random.seed(int(time.time()))        # Generate a seed for random output naming
+    frame_counter = 0	                    # A counter for skipping frames
     
     while True:
 	    # read the next frame
@@ -74,7 +54,7 @@ def process_video(file_dir):
         frame_counter += 1
         if frame_counter % DOWN_SAMPLING != 0:
             continue
-        print("Progress: " + str(frame_counter / total * 100) + "%" )
+        print("Progress: {:.4f}%".format(frame_counter / total * 100))
 
 	    # construct a blob from the input frame and then perform a forward
 	    # pass of the YOLO object detector, giving us our bounding boxes
@@ -111,5 +91,35 @@ def process_video(file_dir):
     vs.release()
 
 
+
 if __name__ == '__main__':
-    pass
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--input", required=True, help="input directory")
+    ap.add_argument("-o", "--output", required=True, help="output directory")
+    args = vars(ap.parse_args())
+
+    INPUT_PATH = args["input"]
+    OUTPUT_PATH = args["output"]
+
+    # Setup YOLO
+    labelsPath = os.path.sep.join(["yolo-coco", "coco.names"])
+    LABELS = open(labelsPath).read().strip().split("\n")
+    weightsPath = os.path.sep.join(["yolo-coco", "yolov3.weights"])
+    configPath = os.path.sep.join(["yolo-coco", "yolov3.cfg"])
+
+    # load our YOLO object detector trained on COCO dataset (80 classes)
+    # and determine only the *output* layer names that we need from YOLO
+    print("[INFO] Loading YOLO from disk...")
+    net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+    ln = net.getLayerNames()
+    ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+
+    total_files = len(os.listdir(INPUT_PATH))
+    entries = os.scandir(INPUT_PATH)
+    count = 1
+    
+    for entry in entries:
+        process_video(entry.path)
+        print("[INFO] Completed " + str(count) + " / " + str(total_files) + "files")
+        count += 1
