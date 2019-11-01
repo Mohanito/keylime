@@ -3,7 +3,7 @@ prepare_dataset.py
     For every video in the input directory:
         examine 1 out of every 20 frames
         detect frames with YOLOv3 pretrained model with a high confidence
-        save frames to output directory
+        convert the frame to grayscale, and save it to output directory
 USAGE: python prepare_dataset.py -i INPUT_DIR -o OUTPUT_DIR
 '''
 
@@ -78,7 +78,8 @@ def process_video(file_dir):
                 if confidence > CONFIDENCE and classID == CLASS_CAT:
                     print("[CAT DETECTED] Saving the current frame...")
                     output_name = OUTPUT_PATH + "cat_" + str(np.random.randint(0, 999999)) + ".png"
-                    cv2.imwrite(output_name, frame)
+                    grayscale = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    cv2.imwrite(output_name, grayscale)
 
         # estimating total time (only once at the start of each file)
         if total > 0 and frame_counter == DOWN_SAMPLING:
