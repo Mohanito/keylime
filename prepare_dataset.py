@@ -24,7 +24,7 @@ CLASS_CAT = 15                      # See yolo-coco/coco.names
 
 def process_video(file_dir):
     # initialize the video stream and frame dimensions
-    vs = cv2.VideoCapture(file_dir) # FIXME
+    vs = cv2.VideoCapture(file_dir)
     (W, H) = (None, None)
     
     # try to determine the total number of frames in the video file
