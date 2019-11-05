@@ -18,3 +18,15 @@ Very naive approach: From 3 videos I selected: (1)cleaning, (2)opening door, (3)
 ### Known issues:
 - Converting to grayscale has a different effect from the security camera's night mode.
 - The negative dataset only includes one angle.
+
+
+## 11/5
+# Single-site Binary Classifier 
+- 7205 training data. Another 1000 were used for validation.
+- To speed up the process, all the images were resized initially from 1280*720 to 640*360, then to 320*180
+- The result shows that: accuracy reached 0.9319 after one epoch, and reached 0.9950 during the second epoch
+- The training process is still very slow. The first epoch took 25 minutes.
+# Next step:
+- It might be too early to conclude that Cat vs No Cat is an easy task for our CNN.
+- Training still takes too long. Need to think about Quality vs. Efficiency.
+- What would be a reasonable resolution for the training images?
