@@ -23,9 +23,12 @@ Very naive approach: From 3 videos I selected: (1)cleaning, (2)opening door, (3)
 ## 11/5 Single-site Binary Classifier 
 - 7205 training data. Another 1000 were used for validation.
 - To speed up the process, all the images were resized initially from 1280*720 to 640*360, then to 320*180
-- The result shows that: accuracy reached 0.9319 after one epoch, and reached 0.9950 during the second epoch
 - The training process is still very slow. The first epoch took 25 minutes.
 ### Next step:
 - It might be too early to conclude that Cat vs No Cat is an easy task for our CNN.
 - Training still takes too long. Need to think about Quality vs. Efficiency.
 - What would be a reasonable resolution for the training images?
+
+## 11/11 Update on results:
+- ~90% validation accuracy (10 epochs) for cat vs. no cat, and 100% (questionable) for cat A vs. B.
+- The cause might be the naive dataset collection for the second experiment.

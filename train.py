@@ -14,19 +14,21 @@ IMAGE_HEIGHT = 180
 IMAGE_SIZE = (IMAGE_WIDTH, IMAGE_HEIGHT)
 BATCH_SIZE = 32
 NUM_CLASSES = 2
-NUM_EPOCHS = 20
-TRAIN_DIR = "./data/train"
-TEST_DIR = "./data/test"
+NUM_EPOCHS = 10
+TRAIN_DIR = "./data_catAB/train"
+TEST_DIR = "./data_catAB/test"
 
 save_dir = os.path.join(os.getcwd(), 'saved_models')
-model_name = 'keylime_trained_model.h5'
+model_name = 'catAB.h5'
 
 
 train_images = []
 test_images = []
 for filename in os.listdir(TRAIN_DIR):
     if 'png' in filename:
-        train_images.append(TRAIN_DIR + "/" + filename) 
+        train_images.append(TRAIN_DIR + "/" + filename)
+        if len(train_images) == 1000:
+            break 
 for filename in os.listdir(TEST_DIR):
     if 'png' in filename:
         test_images.append(TEST_DIR + "/" + filename)
@@ -45,7 +47,7 @@ def train_generator():
                 img = cv2.imread(train_images[img_path])
                 img = cv2.resize(img, (IMAGE_WIDTH, IMAGE_HEIGHT))
                 x_batch.append(img)
-                y_batch.append(['1']) if 'cat' in train_images[img_path] else y_batch.append(['0'])
+                y_batch.append(['1']) if 'B' in train_images[img_path] else y_batch.append(['0'])
             yield (np.array(x_batch), keras.utils.to_categorical(np.array(y_batch), NUM_CLASSES))
                                         # Note: Use keras.utils.np_utils.to)categorical to 
                                         # convert labels to categorical one-hot vectors
@@ -60,7 +62,7 @@ def test_generator():
                 img = cv2.imread(test_images[img_path])
                 img = cv2.resize(img, (IMAGE_WIDTH, IMAGE_HEIGHT))
                 x_batch.append(img)
-                y_batch.append(['1']) if 'cat' in test_images[img_path] else y_batch.append(['0'])
+                y_batch.append(['1']) if 'B' in test_images[img_path] else y_batch.append(['0'])
             yield (np.array(x_batch), keras.utils.to_categorical(np.array(y_batch), NUM_CLASSES))
 
 
@@ -106,7 +108,14 @@ model.fit_generator(
     validation_data= test_generator(),
     validation_steps = len(test_images) // BATCH_SIZE,
 )
-
+'''
+# Save model and weights
+if not os.path.isdir(save_dir):
+    os.makedirs(save_dir)
+model_path = os.path.join(save_dir, model_name)
+model.save(model_path)
+print('Saved trained model at %s ' % model_path)
+'''
 
 
 
@@ -147,16 +156,6 @@ if True:
               validation_data=(x_test, y_test),
               shuffle=True)
 '''
-
-'''
-# Save model and weights
-if not os.path.isdir(save_dir):
-    os.makedirs(save_dir)
-model_path = os.path.join(save_dir, model_name)
-model.save(model_path)
-print('Saved trained model at %s ' % model_path)
-'''
-
 '''
 # Score trained model.
 scores = model.evaluate(x_test, y_test, verbose=1)
